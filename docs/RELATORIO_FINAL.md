@@ -97,4 +97,4 @@ Resultado: **12 testes automatizados passando** + smoke com 18 verificações �
 - Migrar Clerk para uso pleno (sign-in real + verificação de token no handshake do socket).
 
 ## 45. Link do repositório
-_a preencher com a URL do Git após o push._
+https://github.com/malusccp/botecofy-music-player
