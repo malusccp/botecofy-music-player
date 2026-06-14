@@ -55,18 +55,24 @@ Historia $($s.id) - $($s.t)
   $urls += $url
 }
 
-Write-Host "==> Criando o Project (board)..." -ForegroundColor Cyan
-$proj = gh project create --owner $OWNER --title $PROJECT_TITLE --format json | ConvertFrom-Json
-$projNum = $proj.number
-Write-Host "   project #$projNum"
-
-Write-Host "==> Adicionando issues ao Project..." -ForegroundColor Cyan
-foreach ($u in $urls) { gh project item-add $projNum --owner $OWNER --url $u | Out-Null }
-
 Write-Host "==> Fechando issues como concluidas (tudo entregue)..." -ForegroundColor Cyan
 foreach ($u in $urls) { gh issue close $u --repo $REPO --comment "Entregue e validada (build + testes verdes)." | Out-Null }
 
+# O Project (GitHub Projects v2) exige o escopo 'project' no token.
+# Se faltar, rode:  gh auth refresh -s project   e execute este bloco de novo.
+Write-Host "==> Criando o Project (board)..." -ForegroundColor Cyan
+try {
+  $proj = gh project create --owner $OWNER --title $PROJECT_TITLE --format json | ConvertFrom-Json
+  $projNum = $proj.number
+  Write-Host "   project #$projNum"
+  foreach ($u in $urls) { gh project item-add $projNum --owner $OWNER --url $u | Out-Null }
+  Write-Host "   issues adicionadas ao Project." -ForegroundColor Green
+} catch {
+  Write-Host "   [aviso] Nao foi possivel criar o Project (provavel falta do escopo 'project')." -ForegroundColor Yellow
+  Write-Host "           Rode 'gh auth refresh -s project' e execute o script de novo," -ForegroundColor Yellow
+  Write-Host "           ou crie o board no site. As issues ja servem como quadro (edital 8.5)." -ForegroundColor Yellow
+}
+
 Write-Host ""
-Write-Host "OK! Issues criadas, adicionadas ao Project e fechadas como concluidas." -ForegroundColor Green
-Write-Host "No site, se quiser, ative o campo 'Status' e confirme que os cards estao em 'Done'." -ForegroundColor Green
-Write-Host "Depois cole o link do Project em docs/SCRUM.md (campo 'Quadro de acompanhamento')." -ForegroundColor Green
+Write-Host "OK! Issues HU01-HU08 criadas e fechadas como concluidas." -ForegroundColor Green
+Write-Host "Cole o link do quadro (Issues ou Project) em docs/SCRUM.md." -ForegroundColor Green

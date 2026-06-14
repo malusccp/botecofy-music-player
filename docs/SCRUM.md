@@ -2,7 +2,7 @@
 
 Artefatos mínimos exigidos pelo edital (8.5): Product Backlog, Sprint Backlog, registro de reuniões, Sprint Review, Sprint Retrospective e quadro de acompanhamento (Trello/GitHub Projects).
 
-> Quadro de acompanhamento: **Trello** — _colar link aqui_. Colunas: `Backlog → A fazer → Em progresso → Revisão → Concluído`.
+> Quadro de acompanhamento: **GitHub Issues** — https://github.com/malusccp/botecofy-music-player/issues (uma issue por história HU01–HU08, com etiquetas de prioridade/sprint; todas concluídas). Opcional: board visual em GitHub Projects (`gh auth refresh -s project,read:project` e rodar `scripts/setup-board.ps1`).
 
 ---
 
