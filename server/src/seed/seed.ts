@@ -6,34 +6,52 @@ import { LikeModel } from "../models/Like.js";
 import { PlayHistoryModel } from "../models/PlayHistory.js";
 import { PlaylistFollowModel } from "../models/PlaylistFollow.js";
 import { ModerationLogModel } from "../models/ModerationLog.js";
-import type { Rhythm } from "../models/enums.js";
+import { RHYTHMS, type Rhythm } from "../models/enums.js";
 
 /**
- * Popula o banco com dados de exemplo para demonstração.
- * Os usuários usam o esquema do MODO DEV de autenticação: para "logar" como
- * cada um, o front envia o header x-dev-user-id correspondente.
- *
- *   curador  -> x-dev-user-id: curador  | x-dev-role: curator
- *   admin    -> x-dev-user-id: admin    | x-dev-role: admin
- *   ouvinte  -> x-dev-user-id: ouvinte  | x-dev-role: listener
+ * Seed do acervo a partir da iTunes Search API (dados reais da Apple).
+ * Para cada ritmo busca músicas e mapeia:
+ *   trackName    -> title
+ *   artistName   -> artist
+ *   previewUrl   -> audioUrl  (preview de ~30s, tocável no player)
+ *   artworkUrl100 -> coverUrl (trocando 100x100bb por 600x600bb p/ alta resolução)
  */
 
-// Áudio de exemplo (placeholder). Faça upload de arquivos reais pela UI/cadastro.
-const SAMPLE_AUDIO = "/uploads/audio/sample.mp3";
+interface ITunesTrack {
+  trackName?: string;
+  artistName?: string;
+  previewUrl?: string;
+  artworkUrl100?: string;
+  trackTimeMillis?: number;
+  kind?: string;
+}
 
-const SEED_TRACKS: Array<{ title: string; artist: string; rhythm: Rhythm; plays: number; likes: number }> = [
-  { title: "Saideira da Madrugada", artist: "Zé do Pagode", rhythm: "pagode", plays: 320, likes: 88 },
-  { title: "Mesa de Bar", artist: "Trio Resenha", rhythm: "pagode", plays: 210, likes: 51 },
-  { title: "Sofrência de Garrafa", artist: "Banda Arrochaço", rhythm: "arrocha", plays: 540, likes: 132 },
-  { title: "Amor de Esquina", artist: "Brega das Antigas", rhythm: "brega", plays: 175, likes: 40 },
-  { title: "Coração Apertado", artist: "Brega das Antigas", rhythm: "brega", plays: 98, likes: 22 },
-  { title: "Boiadeiro de Asfalto", artist: "Dupla Poeira", rhythm: "sertanejo", plays: 410, likes: 109 },
-  { title: "Modão na Veia", artist: "Dupla Poeira", rhythm: "sertanejo", plays: 260, likes: 70 },
-  { title: "Arrocha do Adeus", artist: "Banda Arrochaço", rhythm: "arrocha", plays: 300, likes: 95 },
-];
+const SEARCH_TERMS: Record<Rhythm, string> = {
+  pagode: "pagode",
+  sertanejo: "sertanejo",
+  arrocha: "arrocha",
+  brega: "brega",
+};
+
+const LIMIT_PER_RHYTHM = 12;
+
+async function fetchRhythm(rhythm: Rhythm): Promise<ITunesTrack[]> {
+  const term = encodeURIComponent(SEARCH_TERMS[rhythm]);
+  const url = `https://itunes.apple.com/search?term=${term}&entity=song&limit=${LIMIT_PER_RHYTHM}&country=BR`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`iTunes respondeu ${res.status} para "${rhythm}"`);
+  const data = (await res.json()) as { results?: ITunesTrack[] };
+  return data.results ?? [];
+}
+
+function toCoverUrl(artworkUrl100?: string): string {
+  if (!artworkUrl100) return "";
+  return artworkUrl100.replace("100x100bb", "600x600bb");
+}
 
 async function seed() {
   await connectDatabase();
+
   console.log("[seed] limpando coleções...");
   await Promise.all([
     UserModel.deleteMany({}),
@@ -45,27 +63,56 @@ async function seed() {
     ModerationLogModel.deleteMany({}),
   ]);
 
-  const [curator, admin, listener] = await UserModel.create([
-    { clerkId: "dev:curador", displayName: "Curador Boteco", role: "curator" },
-    { clerkId: "dev:admin", displayName: "Admin Boteco", role: "admin" },
-    { clerkId: "dev:ouvinte", displayName: "Ouvinte Boteco", role: "listener" },
-  ]);
+  // Dono das faixas do acervo (curador "do sistema"). Os usuários reais entram via Clerk.
+  const curator = await UserModel.create({
+    clerkId: "seed:curador",
+    displayName: "Curadoria Botecofy",
+    role: "curator",
+  });
 
-  console.log("[seed] criando faixas...");
-  const tracks = await TrackModel.create(
-    SEED_TRACKS.map((t) => ({
-      title: t.title,
-      artist: t.artist,
-      rhythm: t.rhythm,
-      audioUrl: SAMPLE_AUDIO,
-      coverUrl: "",
-      durationSec: 180,
-      status: "active",
-      playsCount: t.plays,
-      likesCount: t.likes,
-      uploadedBy: curator._id,
-    }))
-  );
+  const seen = new Set<string>();
+  const createdByRhythm: Record<Rhythm, string[]> = { pagode: [], sertanejo: [], arrocha: [], brega: [] };
+
+  for (const rhythm of RHYTHMS) {
+    console.log(`[seed] buscando "${rhythm}" no iTunes...`);
+    let results: ITunesTrack[] = [];
+    try {
+      results = await fetchRhythm(rhythm);
+    } catch (err) {
+      console.warn(`[seed] falha ao buscar ${rhythm}:`, (err as Error).message);
+      continue;
+    }
+
+    for (const item of results) {
+      const title = item.trackName?.trim();
+      const artist = item.artistName?.trim();
+      const audioUrl = item.previewUrl;
+      if (!title || !artist || !audioUrl) continue; // RN08: precisa de áudio
+
+      const key = `${artist.toLowerCase()}::${title.toLowerCase()}`;
+      if (seen.has(key)) continue; // RN02: evita duplicado por artista+título
+      seen.add(key);
+
+      try {
+        const track = await TrackModel.create({
+          title,
+          artist,
+          rhythm,
+          audioUrl,
+          coverUrl: toCoverUrl(item.artworkUrl100),
+          durationSec: item.trackTimeMillis ? Math.round(item.trackTimeMillis / 1000) : 30,
+          status: "active",
+          playsCount: Math.floor(Math.random() * 400),
+          likesCount: Math.floor(Math.random() * 120),
+          uploadedBy: curator._id,
+        });
+        createdByRhythm[rhythm].push(String(track._id));
+      } catch (err) {
+        console.warn(`[seed] pulando "${title}" (${artist}):`, (err as Error).message);
+      }
+    }
+    console.log(`[seed]   ${createdByRhythm[rhythm].length} faixas de ${rhythm}.`);
+  }
 
   console.log("[seed] criando playlists temáticas...");
   await PlaylistModel.create([
@@ -75,7 +122,7 @@ async function seed() {
       rhythms: ["pagode"],
       isPublic: true,
       owner: curator._id,
-      tracks: tracks.filter((t) => t.rhythm === "pagode").map((t) => t._id),
+      tracks: createdByRhythm.pagode,
     },
     {
       name: "Arrocha Sofrência",
@@ -83,7 +130,7 @@ async function seed() {
       rhythms: ["arrocha"],
       isPublic: true,
       owner: curator._id,
-      tracks: tracks.filter((t) => t.rhythm === "arrocha").map((t) => t._id),
+      tracks: createdByRhythm.arrocha,
     },
     {
       name: "Sertanejo Raiz & Brega",
@@ -91,12 +138,12 @@ async function seed() {
       rhythms: ["sertanejo", "brega"],
       isPublic: true,
       owner: curator._id,
-      tracks: tracks.filter((t) => t.rhythm === "sertanejo" || t.rhythm === "brega").map((t) => t._id),
+      tracks: [...createdByRhythm.sertanejo, ...createdByRhythm.brega],
     },
   ]);
 
-  console.log("[seed] concluído.");
-  console.log(`  usuários: curador(${curator.id}), admin(${admin.id}), ouvinte(${listener.id})`);
+  const total = Object.values(createdByRhythm).reduce((s, arr) => s + arr.length, 0);
+  console.log(`[seed] concluído: ${total} faixas reais (iTunes) + 3 playlists.`);
   await disconnectDatabase();
 }
 
