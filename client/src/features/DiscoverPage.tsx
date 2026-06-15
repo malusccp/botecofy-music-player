@@ -29,13 +29,13 @@ export function DiscoverPage() {
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl text-boteco-amber">Descobrir o som do boteco</h1>
-        <p className="text-boteco-cream/60">Curadoria por ritmo: brega, pagode, sertanejo e arrocha.</p>
+        <h1 className="font-display text-3xl text-boteco-green-dark">Descobrir o som do boteco</h1>
+        <p className="text-boteco-muted">Curadoria por ritmo: brega, pagode, sertanejo e arrocha.</p>
       </div>
 
       <div className="card p-4 space-y-3">
         <input
-          className="w-full rounded-lg bg-boteco-bg border border-white/10 px-3 py-2"
+          className="w-full rounded-lg bg-boteco-cream border border-boteco-ink/15 px-3 py-2"
           placeholder="Buscar por título ou artista…"
           value={filters.text}
           onChange={(e) => setFilters((f) => ({ ...f, text: e.target.value }))}
@@ -47,16 +47,16 @@ export function DiscoverPage() {
               onClick={() => toggleRhythm(r)}
               className={`chip ${
                 filters.rhythms.includes(r)
-                  ? "bg-boteco-amber text-boteco-bg border-boteco-amber"
-                  : "border-white/15 text-boteco-cream/70"
+                  ? "bg-boteco-green text-white border-boteco-green"
+                  : "border-boteco-ink/20 text-boteco-muted"
               }`}
             >
               {RHYTHM_LABEL[r]}
             </button>
           ))}
-          <span className="ml-auto text-sm text-boteco-cream/60">Ordenar:</span>
+          <span className="ml-auto text-sm text-boteco-muted">Ordenar:</span>
           <select
-            className="rounded-lg bg-boteco-bg border border-white/10 px-2 py-1 text-sm"
+            className="rounded-lg bg-boteco-cream border border-boteco-ink/15 px-2 py-1 text-sm"
             value={filters.sort}
             onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))}
           >
@@ -70,9 +70,9 @@ export function DiscoverPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-boteco-cream/60">Carregando o acervo…</p>
+        <p className="text-boteco-muted">Carregando o acervo…</p>
       ) : tracks.length === 0 ? (
-        <p className="text-boteco-cream/60">Nenhuma faixa encontrada com esses filtros.</p>
+        <p className="text-boteco-muted">Nenhuma faixa encontrada com esses filtros.</p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {tracks.map((t) => (

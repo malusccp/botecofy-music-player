@@ -64,8 +64,8 @@ export function PlayerBar() {
 
   if (!current) {
     return (
-      <footer className="fixed bottom-0 inset-x-0 border-t border-white/5 bg-boteco-surface/95 backdrop-blur">
-        <div className="mx-auto max-w-6xl px-4 py-4 text-sm text-boteco-cream/50">
+      <footer className="fixed bottom-0 inset-x-0 border-t border-boteco-ink/10 bg-boteco-paper/95 backdrop-blur">
+        <div className="mx-auto max-w-6xl px-4 py-4 text-sm text-boteco-muted">
           Nada tocando — escolha uma faixa para puxar o som. 🎶
         </div>
       </footer>
@@ -73,7 +73,7 @@ export function PlayerBar() {
   }
 
   return (
-    <footer className="fixed bottom-0 inset-x-0 border-t border-white/5 bg-boteco-surface/95 backdrop-blur z-20">
+    <footer className="fixed bottom-0 inset-x-0 border-t border-boteco-ink/10 bg-boteco-paper/95 backdrop-blur z-20">
       <audio
         ref={audioRef}
         onTimeUpdate={onTimeUpdate}
@@ -84,7 +84,7 @@ export function PlayerBar() {
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center gap-4">
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold">{current.title}</p>
-          <div className="flex items-center gap-2 text-sm text-boteco-cream/60">
+          <div className="flex items-center gap-2 text-sm text-boteco-muted">
             <span className="truncate">{current.artist}</span>
             <RhythmBadge rhythm={current.rhythm} />
           </div>
@@ -102,7 +102,7 @@ export function PlayerBar() {
           </button>
         </div>
 
-        <label className="hidden sm:flex items-center gap-2 text-xs text-boteco-cream/60">
+        <label className="hidden sm:flex items-center gap-2 text-xs text-boteco-muted">
           🔊
           <input
             type="range"
@@ -111,6 +111,7 @@ export function PlayerBar() {
             step={0.05}
             value={volume}
             onChange={(e) => setVolume(Number(e.target.value))}
+            className="accent-boteco-green"
           />
         </label>
       </div>

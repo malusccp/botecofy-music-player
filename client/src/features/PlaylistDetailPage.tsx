@@ -21,16 +21,16 @@ export function PlaylistDetailPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["followed"] }),
   });
 
-  if (isLoading) return <p className="text-boteco-cream/60">Carregando playlist…</p>;
-  if (!playlist) return <p className="text-boteco-cream/60">Playlist não encontrada.</p>;
+  if (isLoading) return <p className="text-boteco-muted">Carregando playlist…</p>;
+  if (!playlist) return <p className="text-boteco-muted">Playlist não encontrada.</p>;
 
   const tracks = playlist.tracks ?? [];
 
   return (
     <section className="space-y-6">
       <div className="card p-6">
-        <h1 className="font-display text-3xl text-boteco-amber">{playlist.name}</h1>
-        <p className="text-boteco-cream/70 mt-1">{playlist.description}</p>
+        <h1 className="font-display text-3xl text-boteco-green-dark">{playlist.name}</h1>
+        <p className="text-boteco-muted mt-1">{playlist.description}</p>
         <div className="flex flex-wrap gap-1 mt-3">
           {playlist.rhythms.map((r) => (
             <RhythmBadge key={r} rhythm={r} />
@@ -51,7 +51,7 @@ export function PlaylistDetailPage() {
       </div>
 
       {tracks.length === 0 ? (
-        <p className="text-boteco-cream/60">Esta playlist ainda não tem faixas.</p>
+        <p className="text-boteco-muted">Esta playlist ainda não tem faixas.</p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {tracks.map((t) => (

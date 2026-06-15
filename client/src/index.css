@@ -4,8 +4,12 @@
 
 @layer base {
   body {
-    @apply bg-boteco-bg text-boteco-cream antialiased;
-    background-image: radial-gradient(circle at 20% 0%, rgba(232, 163, 61, 0.08), transparent 40%);
+    @apply bg-boteco-cream text-boteco-ink antialiased;
+    /* leve textura amarela/verde da identidade do boteco */
+    background-image:
+      radial-gradient(circle at 12% 0%, rgba(255, 196, 0, 0.18), transparent 42%),
+      radial-gradient(circle at 95% 8%, rgba(11, 138, 61, 0.1), transparent 40%);
+    background-attachment: fixed;
     min-height: 100vh;
   }
 }
@@ -15,13 +19,13 @@
     @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition;
   }
   .btn-primary {
-    @apply btn bg-boteco-amber text-boteco-bg hover:bg-amber-400;
+    @apply btn bg-boteco-yellow text-boteco-ink hover:bg-boteco-yellow-dark;
   }
   .btn-ghost {
-    @apply btn border border-boteco-amber/30 text-boteco-cream hover:bg-boteco-card;
+    @apply btn border border-boteco-green/30 text-boteco-ink hover:bg-boteco-green/10;
   }
   .card {
-    @apply rounded-xl bg-boteco-card/80 border border-white/5 shadow-lg;
+    @apply rounded-xl bg-boteco-paper border border-boteco-ink/10 shadow-boteco;
   }
   .chip {
     @apply rounded-full px-3 py-1 text-xs font-medium border transition;

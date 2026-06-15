@@ -32,7 +32,7 @@ export function TrackCard({ track, queue, action }: Props) {
 
   return (
     <div className="card p-4 flex flex-col gap-3">
-      <div className="aspect-square rounded-lg bg-gradient-to-br from-boteco-ember/40 to-boteco-surface grid place-items-center overflow-hidden">
+      <div className="aspect-square rounded-lg bg-gradient-to-br from-boteco-yellow/30 to-boteco-green/10 grid place-items-center overflow-hidden">
         {track.coverUrl ? (
           <img src={track.coverUrl} alt={track.title} className="h-full w-full object-cover" />
         ) : (
@@ -42,12 +42,12 @@ export function TrackCard({ track, queue, action }: Props) {
 
       <div>
         <h3 className="font-semibold leading-tight">{track.title}</h3>
-        <p className="text-sm text-boteco-cream/60">{track.artist}</p>
+        <p className="text-sm text-boteco-muted">{track.artist}</p>
       </div>
 
       <div className="flex items-center justify-between">
         <RhythmBadge rhythm={track.rhythm} />
-        <span className="text-xs text-boteco-cream/50" data-plays={track.id}>
+        <span className="text-xs text-boteco-muted" data-plays={track.id}>
           ▶ {track.playsCount}
         </span>
       </div>
@@ -57,7 +57,7 @@ export function TrackCard({ track, queue, action }: Props) {
           ▶ Tocar
         </button>
         <button
-          className={`btn-ghost ${track.liked ? "text-rose-400 border-rose-400/40" : ""}`}
+          className={`btn-ghost ${track.liked ? "text-boteco-red border-boteco-red/40" : ""}`}
           onClick={() => like.mutate()}
           disabled={like.isPending}
           title="Curtir"
