@@ -1,0 +1,10 @@
+Salve a imagem oficial da logo do Botecofy NESTE diretório com o nome:
+
+    logo.png
+
+Ou seja, o caminho final deve ser: client/public/logo.png
+
+O cabeçalho do app referencia "/logo.png". Enquanto o arquivo não existir,
+o header mostra automaticamente o texto "Botecofy 🍺" como fallback.
+
+Formatos aceitos: .png (recomendado, fundo transparente ou branco).

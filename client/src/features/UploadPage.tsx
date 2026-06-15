@@ -2,10 +2,10 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { uploadTrack } from "../lib/queries";
 import { RHYTHMS, RHYTHM_LABEL, type Rhythm } from "../types";
-import { useSession } from "../auth/SessionContext";
+import { useIsCurator } from "../auth/useMe";
 
 export function UploadPage() {
-  const { session } = useSession();
+  const canCurate = useIsCurator();
   const qc = useQueryClient();
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
@@ -14,8 +14,6 @@ export function UploadPage() {
   const [cover, setCover] = useState<File | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-
-  const canCurate = session?.role === "curator" || session?.role === "admin";
 
   const submit = useMutation({
     mutationFn: () => {
@@ -43,28 +41,28 @@ export function UploadPage() {
   });
 
   if (!canCurate) {
-    return <p className="text-boteco-cream/60">Apenas curadores podem enviar faixas (RN03).</p>;
+    return <p className="text-boteco-muted">Apenas curadores podem enviar faixas (RN03).</p>;
   }
 
   return (
     <section className="max-w-lg space-y-4">
-      <h1 className="font-display text-3xl text-boteco-amber">Enviar faixa para o acervo</h1>
+      <h1 className="font-display text-3xl text-boteco-green-dark">Enviar faixa para o acervo</h1>
 
       <div className="card p-5 space-y-3">
         <input
-          className="w-full rounded-lg bg-boteco-bg border border-white/10 px-3 py-2"
+          className="w-full rounded-lg bg-boteco-cream border border-boteco-ink/15 px-3 py-2"
           placeholder="Título"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
         <input
-          className="w-full rounded-lg bg-boteco-bg border border-white/10 px-3 py-2"
+          className="w-full rounded-lg bg-boteco-cream border border-boteco-ink/15 px-3 py-2"
           placeholder="Artista"
           value={artist}
           onChange={(e) => setArtist(e.target.value)}
         />
         <select
-          className="w-full rounded-lg bg-boteco-bg border border-white/10 px-3 py-2"
+          className="w-full rounded-lg bg-boteco-cream border border-boteco-ink/15 px-3 py-2"
           value={rhythm}
           onChange={(e) => setRhythm(e.target.value as Rhythm)}
         >
@@ -75,7 +73,7 @@ export function UploadPage() {
           ))}
         </select>
 
-        <label className="block text-sm text-boteco-cream/70">
+        <label className="block text-sm text-boteco-muted">
           Arquivo de áudio (mp3/aac, até 15 MB)
           <input
             type="file"
@@ -84,7 +82,7 @@ export function UploadPage() {
             onChange={(e) => setAudio(e.target.files?.[0] ?? null)}
           />
         </label>
-        <label className="block text-sm text-boteco-cream/70">
+        <label className="block text-sm text-boteco-muted">
           Capa (opcional)
           <input
             type="file"
@@ -94,8 +92,8 @@ export function UploadPage() {
           />
         </label>
 
-        {message && <p className="text-sm text-emerald-400">{message}</p>}
-        {error && <p className="text-sm text-rose-400">{error}</p>}
+        {message && <p className="text-sm text-boteco-green-dark">{message}</p>}
+        {error && <p className="text-sm text-boteco-red">{error}</p>}
 
         <button
           className="btn-primary"

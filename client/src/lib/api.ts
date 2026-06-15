@@ -1,36 +1,15 @@
 import axios from "axios";
 
 /**
- * Cliente HTTP. Injeta os headers do MODO DEV de autenticação a partir da
- * sessão guardada no localStorage. Quando o Clerk estiver configurado, o token
- * seria injetado aqui no lugar desses headers.
+ * Cliente HTTP. Anexa o token JWT real do Clerk (Authorization: Bearer) em
+ * cada requisição. O backend valida esse token e resolve o papel do usuário.
  */
-export interface DevSession {
-  id: string;
-  name: string;
-  role: "listener" | "curator" | "admin";
-}
-
-const STORAGE_KEY = "botecofy.session";
-
-export function getSession(): DevSession | null {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? (JSON.parse(raw) as DevSession) : null;
-}
-
-export function setSession(session: DevSession | null): void {
-  if (session) localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-  else localStorage.removeItem(STORAGE_KEY);
-}
-
 export const api = axios.create({ baseURL: "/api" });
 
-api.interceptors.request.use((config) => {
-  const session = getSession();
-  if (session) {
-    config.headers.set("x-dev-user-id", session.id);
-    config.headers.set("x-dev-role", session.role);
-    config.headers.set("x-dev-name", session.name);
-  }
+api.interceptors.request.use(async (config) => {
+  // window.Clerk é exposto pelo ClerkProvider após o carregamento.
+  const clerk = (window as unknown as { Clerk?: { session?: { getToken: () => Promise<string | null> } } }).Clerk;
+  const token = clerk?.session ? await clerk.session.getToken() : null;
+  if (token) config.headers.set("Authorization", `Bearer ${token}`);
   return config;
 });
