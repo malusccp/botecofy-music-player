@@ -3,29 +3,37 @@ import type { Role } from "../models/enums.js";
 import type { UserDoc } from "../models/User.js";
 import { NotFoundError } from "../errors/AppError.js";
 
-export interface ProvisionInput {
+export interface SyncInput {
   clerkId: string;
   displayName: string;
-  role?: Role;
+  role: Role;
 }
 
 /**
  * Regras de usuário. RN10: provisiona o usuário no primeiro acesso autenticado,
- * a partir do clerkId. SOLID/SRP: trata apenas identidade/perfil.
+ * a partir da identidade do Clerk, e mantém papel/nome sincronizados.
+ * SOLID/SRP: trata apenas identidade/perfil.
  */
 export class UserService {
   constructor(private readonly users: IUserRepository) {}
 
-  /** Garante que existe um usuário local para o clerkId; cria se necessário. */
-  async provision(input: ProvisionInput): Promise<UserDoc> {
+  /** Cria o usuário local no 1º acesso ou atualiza papel/nome se mudaram. */
+  async syncFromAuth(input: SyncInput): Promise<UserDoc> {
     const existing = await this.users.findByClerkId(input.clerkId);
-    if (existing) return existing;
+    if (!existing) {
+      return this.users.create({
+        clerkId: input.clerkId,
+        displayName: input.displayName || "Ouvinte",
+        role: input.role,
+      });
+    }
 
-    return this.users.create({
-      clerkId: input.clerkId,
-      displayName: input.displayName || "Ouvinte",
-      role: input.role ?? "listener",
-    });
+    if (existing.role !== input.role || existing.displayName !== input.displayName) {
+      existing.role = input.role;
+      existing.displayName = input.displayName || existing.displayName;
+      await existing.save();
+    }
+    return existing;
   }
 
   async getById(id: string): Promise<UserDoc> {

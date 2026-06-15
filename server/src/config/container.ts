@@ -11,6 +11,7 @@ import { ModerationLogRepository } from "../repositories/ModerationLogRepository
 
 import { LocalStorageService } from "../lib/storage/LocalStorageService.js";
 import { RealtimeNotifier } from "../services/events/RealtimeNotifier.js";
+import { ClerkAuthProvider, type AuthProvider } from "../middlewares/authProvider.js";
 
 import { UserService } from "../services/UserService.js";
 import { TrackService } from "../services/TrackService.js";
@@ -38,6 +39,7 @@ export function buildContainer() {
   // Infra
   const storage = new LocalStorageService(UPLOADS_DIR, "/uploads");
   const notifier = new RealtimeNotifier();
+  const authProvider: AuthProvider = new ClerkAuthProvider(env.adminEmails, env.curatorEmails);
 
   // Domínio / aplicação
   const userService = new UserService(userRepo);
@@ -51,6 +53,7 @@ export function buildContainer() {
     env,
     storage,
     notifier,
+    authProvider,
     userService,
     trackService,
     playlistService,

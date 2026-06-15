@@ -75,11 +75,11 @@
 - `server/src/app.ts` / `index.ts` — como a aplicação Express é montada; middlewares de erro, CORS, rotas.
 - `server/src/config/container.ts` — **Composition Root**: o único lugar que instancia implementações concretas e injeta nos serviços. Este arquivo é a sua "prova viva" de **SOLID/DIP**. Saber explicar: "os serviços recebem repositórios e o `StorageService`/`RealtimeNotifier` por construtor; eles só conhecem interfaces."
 - `server/src/middlewares/` — `auth.ts` (modo DEV vs Clerk), `validate.ts` (validação com Zod), `errorHandler.ts`, `requireRole.ts` (RN03).
-- `client/src/` base — Vite, `Layout`, `SessionContext`, `lib/api.ts` (axios), `lib/queries.ts` (React Query).
+- `client/src/` base — Vite, `Layout`, `ClerkProvider` (main.tsx), `auth/useMe` (papel), `lib/api.ts` (axios + token Clerk), `lib/queries.ts` (React Query).
 
 **Perguntas prováveis:**
 - *"Onde está a injeção de dependência?"* → abrir `container.ts` e mostrar os `new` + construtores.
-- *"Como vocês autenticam?"* → Clerk; e há um **modo DEV** (headers `x-dev-user-id`/`x-dev-role`) para demonstrar sem chaves externas, mantendo a mesma interface `req.actor`.
+- *"Como vocês autenticam?"* → **Clerk** (login real). O backend valida o JWT em todo request via `ClerkAuthProvider` (atrás da interface `AuthProvider` — DIP), resolve o papel (publicMetadata/`ADMIN_EMAILS`) e popula `req.actor`. Ouvinte é bloqueado (403) em Upload/Moderação. Nos testes injetamos um `FakeAuthProvider` (sem reintroduzir bypass no app).
 - *"Por que arquitetura em camadas?"* → tamanho do projeto, separação clara apresentação/domínio/persistência, testabilidade.
 
 ---

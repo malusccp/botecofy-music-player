@@ -5,6 +5,12 @@ import { setupSockets } from "./sockets/index.js";
 import { env } from "./config/env.js";
 
 async function bootstrap() {
+  if (!env.clerkConfigured) {
+    console.warn(
+      "[botecofy] AVISO: CLERK_SECRET_KEY não definido. O app exige Clerk para autenticar — preencha server/.env."
+    );
+  }
+
   await connectDatabase();
 
   const { app, container } = createApp();
@@ -13,7 +19,7 @@ async function bootstrap() {
 
   httpServer.listen(env.port, () => {
     console.log(`[botecofy] API em http://localhost:${env.port}`);
-    console.log(`[botecofy] autenticação: ${env.authDevMode ? "MODO DEV (headers)" : "Clerk"}`);
+    console.log(`[botecofy] autenticação: Clerk (${env.clerkConfigured ? "configurado" : "NÃO configurado"})`);
   });
 }
 

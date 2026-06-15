@@ -86,7 +86,7 @@ Diagrama de classes e enumerações na seção 11; coleções e índices na seç
 Resultado: **12 testes automatizados passando** + smoke com 18 verificações ✓.
 
 ## 43. Dificuldades encontradas
-- Integrar autenticação sem travar a demonstração → solução: **modo DEV** de auth (headers) quando o Clerk não está configurado, mantendo a mesma interface de `req.actor`.
+- Integrar autenticação real do Clerk sem acoplar o domínio → solução: interface `AuthProvider` (DIP) com `ClerkAuthProvider` em produção e `FakeAuthProvider` nos testes, mantendo a mesma interface `req.actor`. O papel é resolvido por `publicMetadata`/`ADMIN_EMAILS`.
 - Contadores em tempo real sem transações → contadores desnormalizados + `$inc` atômico + eventos de domínio.
 - Tipagem do Mongoose com arrays de refs → uso de `InferSchemaType` e DTOs na fronteira.
 

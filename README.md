@@ -43,21 +43,37 @@ npm install
 
 # 2. Configurar variáveis de ambiente
 cp server/.env.example server/.env
-cp client/.env.example client/.env   # opcional
+cp client/.env.example client/.env
 
-# 3. Popular o banco com dados de exemplo
+# 3. Preencher as chaves do Clerk (obrigatório — ver abaixo)
+#    server/.env  -> CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY, ADMIN_EMAILS
+#    client/.env  -> VITE_CLERK_PUBLISHABLE_KEY
+
+# 4. Popular o banco com faixas reais (iTunes Search API)
 npm run seed
 
-# 4. Subir API + front-end juntos
+# 5. Subir API + front-end juntos
 npm run dev
 ```
 
 - Front-end: http://localhost:5173
 - API: http://localhost:4000/api/health
 
-### Autenticação — modo DEV vs. Clerk
+### 🖼️ Logo
 
-A autenticação usa **Clerk**. Para permitir rodar/demonstrar **sem configuração externa**, se `CLERK_SECRET_KEY` estiver vazio a API entra em **MODO DEV**: o front mostra um seletor **"Entrar como…"** no topo (Ouvinte / Curador / Admin), que envia os headers `x-dev-user-id`/`x-dev-role`. Para usar o Clerk de verdade, preencha as chaves em `server/.env` e `client/.env`.
+Salve a imagem oficial da logo em **`client/public/logo.png`** (veja `client/public/LEIA-ME-LOGO.txt`). Enquanto o arquivo não existir, o cabeçalho mostra o wordmark "Botecofy 🍺" como fallback.
+
+### 🔐 Autenticação (Clerk — login real obrigatório)
+
+O app usa **Clerk** para autenticação real; **não há mais "modo dev"**. É obrigatório configurar as chaves:
+
+1. Crie um app gratuito em https://dashboard.clerk.com e copie as chaves para `server/.env` e `client/.env`.
+2. Rode o app e **cadastre-se** pela tela de login (Clerk `<SignUp/>`/`<SignIn/>`).
+3. Todo novo usuário entra como **Ouvinte**. Para virar **Curador/Admin**, há duas opções:
+   - **Atalho (recomendado p/ demo):** coloque seu e-mail em `ADMIN_EMAILS` (ou `CURATOR_EMAILS`) no `server/.env`. No próximo login o papel é aplicado automaticamente.
+   - **Via Clerk:** no dashboard, defina `publicMetadata.role = "admin"` (ou `curator`) no usuário.
+
+O backend valida o **JWT do Clerk** em toda requisição, resolve o papel e **bloqueia Ouvintes** nas rotas de Upload e Moderação (403).
 
 ---
 
@@ -88,20 +104,21 @@ WebSocket (Socket.io): eventos `track:liked` e `track:played` para atualização
 
 ---
 
-## 🎧 Sobre o áudio de exemplo
+## 🎧 Sobre o áudio (iTunes Search API)
 
-O `seed` cadastra faixas apontando para um caminho de áudio *placeholder* (`/uploads/audio/sample.mp3`). Para ouvir de verdade, faça **upload de arquivos `.mp3` reais** pela tela **"Enviar faixa"** (logado como Curador) — o servidor serve o áudio com suporte a *seek* (HTTP Range).
+O `seed` consome a **iTunes Search API** e popula o acervo com **dados reais da Apple** por ritmo (pagode, sertanejo, arrocha, brega): `trackName`→título, `artistName`→artista, `previewUrl` (preview de ~30s)→`audioUrl`, e a capa em alta resolução (`artworkUrl100` → `600x600bb`)→`coverUrl`. Não há mais `sample.mp3`. O player toca os previews diretamente; uploads próprios (tela "Enviar faixa") são servidos com suporte a *seek* (HTTP Range).
 
 ---
 
-## 🗺️ Roteiro de demonstração (5 histórias mínimas)
+## 🗺️ Roteiro de demonstração
 
-1. Entre como **Curador** → **Enviar faixa** → cadastre um `.mp3` (HU01).
-2. Volte em **Descobrir** → filtre por ritmo / ordene / busque (HU02) → **Tocar** (HU03).
+1. **Cadastre-se** pela tela de login (Clerk). Coloque seu e-mail em `ADMIN_EMAILS` no `server/.env` para entrar como Admin/Curador.
+2. **Descobrir** → filtre por ritmo / ordene / busque (HU02) → **Tocar** um preview real do iTunes (HU03).
 3. Curta uma faixa e veja o contador subir ao vivo em outra aba (HU05, tempo real).
-4. Crie uma **Playlist** temática e adicione faixas (HU04).
-5. Entre como **Ouvinte** → **Seguir** a playlist; veja em **Perfil** o histórico e as seguidas (HU06/HU08).
-6. Entre como **Admin** → **Moderação** → inative uma faixa e confirme que some da busca (HU07/RN04).
+4. Como **Curador** → **Enviar faixa** cadastra no acervo (HU01); crie uma **Playlist** temática (HU04).
+5. **Seguir** a playlist; veja em **Perfil** o histórico e as seguidas (HU06/HU08).
+6. Como **Admin** → **Moderação** → inative uma faixa e confirme que some da busca (HU07/RN04).
+7. Faça logout e tente acessar Upload/Moderação como Ouvinte comum → bloqueado (403).
 
 ---
 

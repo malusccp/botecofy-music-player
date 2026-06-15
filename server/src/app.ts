@@ -9,7 +9,7 @@ import { errorHandler, notFoundHandler } from "./middlewares/errorHandler.js";
 
 /**
  * Fábrica do app Express (camada de apresentação). Recebe o container por
- * parâmetro para facilitar testes (DIP).
+ * parâmetro para facilitar testes (DIP) — inclusive injetando um AuthProvider falso.
  */
 export function createApp(container: Container = buildContainer()): { app: Express; container: Container } {
   const app = express();
@@ -17,15 +17,15 @@ export function createApp(container: Container = buildContainer()): { app: Expre
   app.use(cors({ origin: env.clientOrigin, credentials: true }));
   app.use(express.json());
 
-  // Arquivos de áudio/capa do MVP servidos estaticamente, com suporte a Range
-  // (seek) que o Express já provê via send.
+  // Arquivos de áudio/capa do MVP servidos estaticamente, com suporte a Range (seek).
   app.use("/uploads", express.static(UPLOADS_DIR, { acceptRanges: true }));
 
-  // Clerk só é montado quando há chaves; sem elas, a autenticação roda em modo DEV.
-  if (!env.authDevMode) {
+  // Valida o JWT do Clerk e popula o contexto de autenticação. Só é montado
+  // quando há chaves do Clerk (em testes, usa-se um AuthProvider falso no container).
+  if (env.clerkConfigured) {
     app.use(clerkMiddleware());
   }
-  app.use(attachUser(container.userService));
+  app.use(attachUser(container.userService, container.authProvider));
 
   app.use("/api", buildApiRouter(container));
 

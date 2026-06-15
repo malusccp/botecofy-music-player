@@ -4,6 +4,8 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import request from "supertest";
 import type { Express } from "express";
 import { createApp } from "../app.js";
+import { buildContainer } from "../config/container.js";
+import { FakeAuthProvider } from "../testing/FakeAuthProvider.js";
 import { TrackModel } from "../models/Track.js";
 import { UserModel } from "../models/User.js";
 
@@ -17,7 +19,9 @@ let app: Express;
 beforeAll(async () => {
   mongod = await MongoMemoryServer.create();
   await mongoose.connect(mongod.getUri());
-  app = createApp().app;
+  const container = buildContainer();
+  container.authProvider = new FakeAuthProvider();
+  app = createApp(container).app;
 });
 
 afterAll(async () => {
@@ -64,8 +68,8 @@ describe("POST /api/tracks (HU01, RN03)", () => {
   it("proíbe ouvinte de cadastrar faixa (403)", async () => {
     const res = await request(app)
       .post("/api/tracks")
-      .set("x-dev-user-id", "ouvinte")
-      .set("x-dev-role", "listener")
+      .set("x-test-user-id", "ouvinte")
+      .set("x-test-role", "listener")
       .field("title", "Nova")
       .field("artist", "X")
       .field("rhythm", "pagode")

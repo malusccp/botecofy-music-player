@@ -2,16 +2,20 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import request from "supertest";
 import { createApp } from "./app.js";
+import { buildContainer } from "./config/container.js";
+import { FakeAuthProvider } from "./testing/FakeAuthProvider.js";
 
 /** Smoke test end-to-end do fluxo das histórias contra o app real. */
 async function main() {
   const mongod = await MongoMemoryServer.create();
   await mongoose.connect(mongod.getUri());
-  const { app } = createApp();
+  const container = buildContainer();
+  container.authProvider = new FakeAuthProvider();
+  const { app } = createApp(container);
 
-  const curator = { "x-dev-user-id": "curador", "x-dev-role": "curator", "x-dev-name": "Curador" };
-  const listener = { "x-dev-user-id": "ouvinte", "x-dev-role": "listener", "x-dev-name": "Ouvinte" };
-  const admin = { "x-dev-user-id": "admin", "x-dev-role": "admin", "x-dev-name": "Admin" };
+  const curator = { "x-test-user-id": "curador", "x-test-role": "curator", "x-test-name": "Curador" };
+  const listener = { "x-test-user-id": "ouvinte", "x-test-role": "listener", "x-test-name": "Ouvinte" };
+  const admin = { "x-test-user-id": "admin", "x-test-role": "admin", "x-test-name": "Admin" };
 
   const log = (label: string, ok: boolean, extra = "") =>
     console.log(`${ok ? "✓" : "✗"} ${label}${extra ? "  → " + extra : ""}`);
