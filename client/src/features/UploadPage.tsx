@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { uploadTrack } from "../lib/queries";
 import { RHYTHMS, RHYTHM_LABEL, type Rhythm } from "../types";
 import { useIsCurator } from "../auth/useMe";
+import { UploadIcon } from "../components/icons";
 
 export function UploadPage() {
   const canCurate = useIsCurator();
@@ -41,68 +42,88 @@ export function UploadPage() {
   });
 
   if (!canCurate) {
-    return <p className="text-boteco-muted">Apenas curadores podem enviar faixas (RN03).</p>;
+    return (
+      <div className="p-6 sm:p-10">
+        <p className="rounded-xl bg-boteco-card p-6 text-lg text-boteco-muted">
+          Apenas curadores podem enviar faixas (RN03).
+        </p>
+      </div>
+    );
   }
 
+  const fileInput =
+    "block w-full text-sm text-boteco-muted file:mr-3 file:rounded-full file:border-0 " +
+    "file:bg-boteco-green file:px-4 file:py-2 file:font-bold file:text-white hover:file:bg-boteco-green-light hover:file:text-boteco-base file:transition";
+
   return (
-    <section className="max-w-lg space-y-4">
-      <h1 className="font-display text-3xl text-boteco-green-dark">Enviar faixa para o acervo</h1>
+    <div>
+      <header className="page-hero px-6 pb-8 pt-12 sm:px-10" style={{ ["--hero" as string]: "#E0A500" }}>
+        <p className="text-base font-bold uppercase tracking-wide text-boteco-ink/80">Curadoria</p>
+        <h1 className="flex items-center gap-4 font-display text-5xl text-boteco-ink sm:text-6xl">
+          <UploadIcon size={44} /> Enviar faixa para o acervo
+        </h1>
+        <p className="mt-3 text-lg text-boteco-muted">Adicione uma nova música à curadoria do boteco.</p>
+      </header>
 
-      <div className="card p-5 space-y-3">
-        <input
-          className="w-full rounded-lg bg-boteco-cream border border-boteco-ink/15 px-3 py-2"
-          placeholder="Título"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <input
-          className="w-full rounded-lg bg-boteco-cream border border-boteco-ink/15 px-3 py-2"
-          placeholder="Artista"
-          value={artist}
-          onChange={(e) => setArtist(e.target.value)}
-        />
-        <select
-          className="w-full rounded-lg bg-boteco-cream border border-boteco-ink/15 px-3 py-2"
-          value={rhythm}
-          onChange={(e) => setRhythm(e.target.value as Rhythm)}
-        >
-          {RHYTHMS.map((r) => (
-            <option key={r} value={r}>
-              {RHYTHM_LABEL[r]}
-            </option>
-          ))}
-        </select>
-
-        <label className="block text-sm text-boteco-muted">
-          Arquivo de áudio (mp3/aac, até 15 MB)
+      <div className="px-6 pb-12 sm:px-10">
+        <div className="card !bg-boteco-card max-w-2xl space-y-5 p-7 text-lg">
           <input
-            type="file"
-            accept="audio/*"
-            className="mt-1 block w-full text-sm"
-            onChange={(e) => setAudio(e.target.files?.[0] ?? null)}
+            className="field"
+            placeholder="Título"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
-        </label>
-        <label className="block text-sm text-boteco-muted">
-          Capa (opcional)
           <input
-            type="file"
-            accept="image/*"
-            className="mt-1 block w-full text-sm"
-            onChange={(e) => setCover(e.target.files?.[0] ?? null)}
+            className="field"
+            placeholder="Artista"
+            value={artist}
+            onChange={(e) => setArtist(e.target.value)}
           />
-        </label>
+          <select
+            className="field"
+            value={rhythm}
+            onChange={(e) => setRhythm(e.target.value as Rhythm)}
+          >
+            {RHYTHMS.map((r) => (
+              <option key={r} value={r} className="bg-boteco-card">
+                {RHYTHM_LABEL[r]}
+              </option>
+            ))}
+          </select>
 
-        {message && <p className="text-sm text-boteco-green-dark">{message}</p>}
-        {error && <p className="text-sm text-boteco-red">{error}</p>}
+          <label className="block space-y-1">
+            <span className="text-base font-semibold text-boteco-ink">
+              Arquivo de áudio (mp3/aac, até 15 MB)
+            </span>
+            <input
+              type="file"
+              accept="audio/*"
+              className={fileInput}
+              onChange={(e) => setAudio(e.target.files?.[0] ?? null)}
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-base font-semibold text-boteco-ink">Capa (opcional)</span>
+            <input
+              type="file"
+              accept="image/*"
+              className={fileInput}
+              onChange={(e) => setCover(e.target.files?.[0] ?? null)}
+            />
+          </label>
 
-        <button
-          className="btn-primary"
-          disabled={submit.isPending || !title || !artist || !audio}
-          onClick={() => submit.mutate()}
-        >
-          {submit.isPending ? "Enviando…" : "Cadastrar faixa"}
-        </button>
+          {message && <p className="text-sm text-boteco-green-light">{message}</p>}
+          {error && <p className="text-sm text-boteco-red-light">{error}</p>}
+
+          <button
+            className="btn-primary"
+            disabled={submit.isPending || !title || !artist || !audio}
+            onClick={() => submit.mutate()}
+          >
+            {submit.isPending ? "Enviando…" : "Cadastrar faixa"}
+          </button>
+        </div>
       </div>
-    </section>
+    </div>
   );
 }
