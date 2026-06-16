@@ -8,9 +8,17 @@ export function PlayerBar() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const countedRef = useRef<Set<string>>(new Set());
 
-  const { status, volume } = usePlayerStore((s) => ({ status: s.status, volume: s.volume }));
+  // Seletores atômicos (um valor por chamada): seletores que devolvem um objeto
+  // novo a cada render fazem o Zustand re-renderizar em loop ("Maximum update depth").
+  const status = usePlayerStore((s) => s.status);
+  const volume = usePlayerStore((s) => s.volume);
   const current = usePlayerStore((s) => s.queue[s.index] ?? null);
-  const { togglePlay, next, prev, setStatus, setVolume, updateTrackCounters } = usePlayerStore();
+  const togglePlay = usePlayerStore((s) => s.togglePlay);
+  const next = usePlayerStore((s) => s.next);
+  const prev = usePlayerStore((s) => s.prev);
+  const setStatus = usePlayerStore((s) => s.setStatus);
+  const setVolume = usePlayerStore((s) => s.setVolume);
+  const updateTrackCounters = usePlayerStore((s) => s.updateTrackCounters);
 
   // Atualizações em tempo real (Observer → Socket.io → UI).
   useEffect(() => {
