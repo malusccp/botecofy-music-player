@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="520" viewBox="0 0 520 520">
+  <!-- Marca d'agua da logo circular do Botecofy (apenas linhas), para o centro do fundo. -->
+  <defs>
+    <path id="ringTop" d="M 60 260 a 200 200 0 0 1 400 0" />
+    <path id="ringBottom" d="M 80 260 a 180 180 0 0 0 360 0" />
+  </defs>
+  <g fill="none" stroke="#16276E" stroke-width="3">
+    <circle cx="260" cy="260" r="248"/>
+    <circle cx="260" cy="260" r="205"/>
+    <circle cx="260" cy="260" r="120"/>
+  </g>
+
+  <!-- texto curvo da marca -->
+  <g fill="#16276E" font-family="'Zilla Slab', Georgia, serif" font-weight="700" letter-spacing="14">
+    <text font-size="46">
+      <textPath href="#ringTop" startOffset="50%" text-anchor="middle">BOTECOFY</textPath>
+    </text>
+    <text font-size="30">
+      <textPath href="#ringBottom" startOffset="50%" text-anchor="middle">SOM DE BOTECO</textPath>
+    </text>
+  </g>
+
+  <!-- estrelas separadoras -->
+  <g fill="#16276E">
+    <circle cx="92" cy="260" r="6"/>
+    <circle cx="428" cy="260" r="6"/>
+  </g>
+
+  <!-- copo americano central (linhas) -->
+  <g fill="none" stroke="#16276E" stroke-width="3.5" stroke-linejoin="round" transform="translate(260 260)">
+    <path d="M-46 -30 L46 -30 L36 70 Q36 78 28 78 L-28 78 Q-36 78 -36 70 Z"/>
+    <path d="M-52 -30 Q-56 -64 -22 -58 Q-18 -84 8 -74 Q42 -86 46 -52 Q78 -52 72 -30"/>
+    <g stroke-width="3">
+      <path d="M-20 -64 V-86"/>
+      <circle cx="-20" cy="-86" r="6"/>
+      <path d="M16 -70 V-92"/>
+      <circle cx="16" cy="-92" r="6"/>
+    </g>
+  </g>
+</svg>

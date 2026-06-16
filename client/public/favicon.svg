@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="beer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFD23F"/>
+      <stop offset="1" stop-color="#E8A200"/>
+    </linearGradient>
+  </defs>
+  <!-- fundo redondo azul da marca -->
+  <circle cx="32" cy="32" r="31" fill="#2949D6"/>
+  <circle cx="32" cy="32" r="31" fill="none" stroke="#16276E" stroke-width="2"/>
+  <!-- copo americano (trapezio invertido leve) -->
+  <path d="M21 26 L43 26 L40 53 Q40 55 38 55 L26 55 Q24 55 24 53 Z" fill="url(#beer)" stroke="#7A4A00" stroke-width="1.6" stroke-linejoin="round"/>
+  <!-- facetas do copo -->
+  <line x1="28" y1="27" x2="27" y2="54" stroke="#C98A00" stroke-width="1" opacity="0.7"/>
+  <line x1="34" y1="27" x2="34" y2="54" stroke="#C98A00" stroke-width="1" opacity="0.7"/>
+  <!-- espuma -->
+  <path d="M19 26 Q18 18 25 18 Q26 12 33 14 Q40 12 41 19 Q47 19 45 26 Z" fill="#FFFDF5" stroke="#D9C9A0" stroke-width="1.2" stroke-linejoin="round"/>
+  <!-- nota musical na espuma -->
+  <g fill="#0B8A3D">
+    <ellipse cx="29" cy="20.5" rx="2.6" ry="2" transform="rotate(-18 29 20.5)"/>
+    <rect x="31" y="13.5" width="1.5" height="7" rx="0.7"/>
+    <path d="M32.5 13.5 q4 0.6 3.2 4 q-1.4-2.4-3.2-2 z"/>
+  </g>
+</svg>
