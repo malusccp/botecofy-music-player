@@ -13,6 +13,10 @@ const trackSchema = new Schema(
     playsCount: { type: Number, default: 0, min: 0 },
     likesCount: { type: Number, default: 0, min: 0 },
     uploadedBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    // Referências opcionais (faixas enviadas manualmente podem não ter artista/álbum
+    // cadastrados); `artist` (string) continua sendo a fonte de verdade p/ exibição e RN02.
+    artistRef: { type: Schema.Types.ObjectId, ref: "Artist" },
+    albumRef: { type: Schema.Types.ObjectId, ref: "Album" },
   },
   { timestamps: true }
 );

@@ -8,8 +8,11 @@ import { LikeRepository } from "../repositories/LikeRepository.js";
 import { PlayHistoryRepository } from "../repositories/PlayHistoryRepository.js";
 import { PlaylistFollowRepository } from "../repositories/PlaylistFollowRepository.js";
 import { ModerationLogRepository } from "../repositories/ModerationLogRepository.js";
+import { ArtistRepository } from "../repositories/ArtistRepository.js";
+import { AlbumRepository } from "../repositories/AlbumRepository.js";
 
 import { LocalStorageService } from "../lib/storage/LocalStorageService.js";
+import { DeezerService } from "../lib/images/DeezerService.js";
 import { RealtimeNotifier } from "../services/events/RealtimeNotifier.js";
 import { ClerkAuthProvider, type AuthProvider } from "../middlewares/authProvider.js";
 
@@ -19,6 +22,8 @@ import { PlaylistService } from "../services/PlaylistService.js";
 import { LikeService } from "../services/LikeService.js";
 import { PlaybackService } from "../services/PlaybackService.js";
 import { ModerationService } from "../services/ModerationService.js";
+import { ArtistService } from "../services/ArtistService.js";
+import { AlbumService } from "../services/AlbumService.js";
 
 /**
  * Composition Root. Único lugar onde implementações concretas são escolhidas e
@@ -35,9 +40,12 @@ export function buildContainer() {
   const historyRepo = new PlayHistoryRepository();
   const followRepo = new PlaylistFollowRepository();
   const moderationRepo = new ModerationLogRepository();
+  const artistRepo = new ArtistRepository();
+  const albumRepo = new AlbumRepository();
 
   // Infra
   const storage = new LocalStorageService(UPLOADS_DIR, "/uploads");
+  const deezer = new DeezerService();
   const notifier = new RealtimeNotifier();
   const authProvider: AuthProvider = new ClerkAuthProvider(env.adminEmails, env.curatorEmails);
 
@@ -48,6 +56,8 @@ export function buildContainer() {
   const likeService = new LikeService(likeRepo, trackRepo, notifier);
   const playbackService = new PlaybackService(trackRepo, historyRepo, notifier);
   const moderationService = new ModerationService(trackRepo, moderationRepo);
+  const artistService = new ArtistService(artistRepo, albumRepo, trackRepo, deezer);
+  const albumService = new AlbumService(albumRepo);
 
   return {
     env,
@@ -60,6 +70,8 @@ export function buildContainer() {
     likeService,
     playbackService,
     moderationService,
+    artistService,
+    albumService,
   };
 }
 

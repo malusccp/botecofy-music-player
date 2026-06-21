@@ -51,4 +51,11 @@ export class TrackRepository implements ITrackRepository {
 
     return { items, total };
   }
+
+  findTopByArtist(artistId: string, limit: number): Promise<TrackDoc[]> {
+    return TrackModel.find({ artistRef: artistId, status: "active" })
+      .sort({ playsCount: -1 })
+      .limit(limit)
+      .exec();
+  }
 }

@@ -15,6 +15,7 @@ function makeTrackRepo(overrides: Partial<ITrackRepository> = {}): ITrackReposit
     incrementCounter: vi.fn(),
     setStatus: vi.fn(),
     search: vi.fn(async () => ({ items: [], total: 0 })),
+    findTopByArtist: vi.fn(async () => []),
     ...overrides,
   };
 }

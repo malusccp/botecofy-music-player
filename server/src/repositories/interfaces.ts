@@ -7,6 +7,8 @@ import type { LikeDoc } from "../models/Like.js";
 import type { PlayHistoryDoc } from "../models/PlayHistory.js";
 import type { PlaylistFollowDoc } from "../models/PlaylistFollow.js";
 import type { ModerationLogDoc } from "../models/ModerationLog.js";
+import type { ArtistDoc } from "../models/Artist.js";
+import type { AlbumDoc } from "../models/Album.js";
 
 /**
  * Contratos de persistência (padrão Repository).
@@ -38,6 +40,7 @@ export interface ITrackRepository extends IReadRepository<TrackDoc>, IWriteRepos
   incrementCounter(id: string, field: "playsCount" | "likesCount", delta: number): Promise<TrackDoc | null>;
   setStatus(id: string, status: "active" | "inactive"): Promise<TrackDoc | null>;
   update(id: string, data: Partial<Record<string, unknown>>): Promise<TrackDoc | null>;
+  findTopByArtist(artistId: string, limit: number): Promise<TrackDoc[]>;
 }
 
 export interface IPlaylistRepository extends IReadRepository<PlaylistDoc>, IWriteRepository<PlaylistDoc> {
@@ -74,4 +77,23 @@ export interface IPlaylistFollowRepository {
 export interface IModerationLogRepository {
   add(data: Record<string, unknown>): Promise<ModerationLogDoc>;
   listByTrack(trackId: string): Promise<ModerationLogDoc[]>;
+}
+
+export interface IArtistRepository extends IReadRepository<ArtistDoc>, IWriteRepository<ArtistDoc> {
+  findByName(name: string): Promise<ArtistDoc | null>;
+  list(limit: number): Promise<ArtistDoc[]>;
+  update(id: string, data: Partial<Record<string, unknown>>): Promise<ArtistDoc | null>;
+}
+
+export interface AlbumQuery {
+  artistId?: string;
+  limit: number;
+}
+
+export interface IAlbumRepository extends IReadRepository<AlbumDoc>, IWriteRepository<AlbumDoc> {
+  findByArtistAndTitle(artistId: string, title: string): Promise<AlbumDoc | null>;
+  /** Álbum com artista e faixas (apenas ativas) populados, para a página do álbum. */
+  findByIdWithTracks(id: string): Promise<AlbumDoc | null>;
+  list(query: AlbumQuery): Promise<AlbumDoc[]>;
+  update(id: string, data: Partial<Record<string, unknown>>): Promise<AlbumDoc | null>;
 }

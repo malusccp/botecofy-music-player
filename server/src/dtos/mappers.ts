@@ -1,6 +1,8 @@
 import type { TrackDoc } from "../models/Track.js";
 import type { PlaylistDoc } from "../models/Playlist.js";
 import type { UserDoc } from "../models/User.js";
+import type { ArtistDoc } from "../models/Artist.js";
+import type { AlbumDoc } from "../models/Album.js";
 
 /**
  * Padrão DTO. Converte documentos internos (Mongoose) em contratos de saída
@@ -77,5 +79,45 @@ export function toUserDTO(user: UserDoc): UserDTO {
     id: String(user._id),
     displayName: user.displayName,
     role: user.role,
+  };
+}
+
+export interface ArtistDTO {
+  id: string;
+  name: string;
+  photoUrl: string;
+  rhythms: string[];
+}
+
+export function toArtistDTO(artist: ArtistDoc): ArtistDTO {
+  return {
+    id: String(artist._id),
+    name: artist.name,
+    photoUrl: artist.photoUrl ?? "",
+    rhythms: (artist.rhythms ?? []) as string[],
+  };
+}
+
+export interface AlbumDTO {
+  id: string;
+  title: string;
+  coverUrl: string;
+  rhythm?: string;
+  trackCount: number;
+  artist: ArtistDTO | string;
+}
+
+export function toAlbumDTO(album: AlbumDoc): AlbumDTO {
+  const artistRaw = album.artist as unknown;
+  const artistPopulated =
+    typeof artistRaw === "object" && artistRaw !== null && (artistRaw as any).name;
+
+  return {
+    id: String(album._id),
+    title: album.title,
+    coverUrl: album.coverUrl ?? "",
+    rhythm: album.rhythm ?? undefined,
+    trackCount: (album.tracks ?? []).length,
+    artist: artistPopulated ? toArtistDTO(artistRaw as ArtistDoc) : String(album.artist),
   };
 }

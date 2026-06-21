@@ -4,6 +4,8 @@ import { trackRoutes } from "./track.routes.js";
 import { playlistRoutes } from "./playlist.routes.js";
 import { userRoutes } from "./user.routes.js";
 import { moderationRoutes } from "./moderation.routes.js";
+import { artistRoutes } from "./artist.routes.js";
+import { albumRoutes } from "./album.routes.js";
 import { availableSortKeys } from "../services/strategies/SortStrategy.js";
 import { RHYTHMS } from "../models/enums.js";
 
@@ -19,6 +21,8 @@ export function buildApiRouter(c: Container): Router {
   api.use("/playlists", playlistRoutes(c));
   api.use("/me", userRoutes(c));
   api.use("/moderation", moderationRoutes(c));
+  api.use("/artists", artistRoutes(c));
+  api.use("/albums", albumRoutes(c));
 
   return api;
 }

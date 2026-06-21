@@ -18,6 +18,7 @@ describe("PlaybackService.registerPlay (RN06)", () => {
       findActiveByArtistAndTitle: vi.fn(),
       setStatus: vi.fn(),
       search: vi.fn(),
+      findTopByArtist: vi.fn(async () => []),
     };
     history = { add: vi.fn(), listRecentByUser: vi.fn(async () => []) };
     notifier = new RealtimeNotifier();

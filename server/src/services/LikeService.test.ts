@@ -24,6 +24,7 @@ describe("LikeService.toggle (RN07 + Observer)", () => {
       findActiveByArtistAndTitle: vi.fn(),
       setStatus: vi.fn(),
       search: vi.fn(),
+      findTopByArtist: vi.fn(async () => []),
     };
     notifier = new RealtimeNotifier();
   });
