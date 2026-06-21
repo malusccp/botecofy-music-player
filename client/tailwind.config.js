@@ -44,9 +44,10 @@ export default {
         },
       },
       fontFamily: {
-        // títulos + wordmark "Boteco": fonte customizada da logo, com slab serif
-        // como reserva enquanto o arquivo de fonte não chega ao projeto.
-        display: ['"Michelle FLF"', '"Zilla Slab"', "Georgia", "serif"],
+        // títulos do app: slab serif robusta (letreiro pintado de boteco)
+        display: ['"Zilla Slab"', "Georgia", "serif"],
+        // marca "Botecofy": fonte customizada da logo, usada SÓ na tela de login.
+        brand: ['"Michelle FLF"', '"Zilla Slab"', "Georgia", "serif"],
         // corpo/formulários: sans humanista amigável
         sans: ['"Nunito"', "ui-sans-serif", "system-ui", "sans-serif"],
       },

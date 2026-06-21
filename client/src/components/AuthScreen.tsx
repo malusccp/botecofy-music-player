@@ -191,7 +191,7 @@ export function AuthScreen() {
           {/* fallback caso /logo.png ainda nao exista */}
           <div
             style={{ display: "none" }}
-            className="h-48 w-48 items-center justify-center rounded-full border-4 border-boteco-yellow bg-boteco-parchment text-center font-display text-4xl text-boteco-green-dark drop-shadow-[0_10px_20px_rgba(11,23,70,0.45)] sm:h-56 sm:w-56"
+            className="h-48 w-48 items-center justify-center rounded-full border-4 border-boteco-yellow bg-boteco-parchment text-center font-brand text-4xl text-boteco-green-dark drop-shadow-[0_10px_20px_rgba(11,23,70,0.45)] sm:h-56 sm:w-56"
           >
             Boteco<span className="text-boteco-red">fy</span>
           </div>
@@ -199,7 +199,7 @@ export function AuthScreen() {
 
         {/* card hero "Puxa uma cadeira" */}
         <div className="boteco-paper-card w-full px-9 py-8 text-center">
-          <h1 className="font-display text-5xl font-bold text-boteco-green-dark sm:text-6xl">
+          <h1 className="font-brand text-5xl font-bold text-boteco-green-dark sm:text-6xl">
             Puxa uma cadeira 🍻
           </h1>
           <p className="mt-4 text-lg text-boteco-brown sm:text-xl">
@@ -229,7 +229,7 @@ export function AuthScreen() {
               rootBox: "w-full",
               cardBox: "w-full !shadow-none",
               card: "boteco-paper-card !bg-boteco-parchment w-full",
-              headerTitle: "!font-display !text-2xl !font-bold !text-boteco-green-dark",
+              headerTitle: "!font-brand !text-2xl !font-bold !text-boteco-green-dark",
               headerSubtitle: "!text-boteco-brown-soft",
               socialButtonsBlockButton:
                 "!bg-boteco-parchment-soft !border !border-boteco-brown/25 hover:!bg-[#F6E8C2] !rounded-xl !py-2.5",
