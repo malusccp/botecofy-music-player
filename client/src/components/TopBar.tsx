@@ -9,7 +9,7 @@ function Brand() {
       <img
         src="/logo.png"
         alt="Botecofy"
-        className="h-14 w-14 rounded-full object-contain"
+        className="h-14 w-14 rounded-full bg-white object-cover"
         onError={(e) => {
           (e.currentTarget as HTMLImageElement).style.display = "none";
         }}
