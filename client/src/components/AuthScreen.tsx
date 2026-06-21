@@ -175,13 +175,13 @@ export function AuthScreen() {
       </div>
 
       {/* conteúdo */}
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col items-center gap-6 px-4 py-10">
-        {/* logo circular completa no topo */}
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center gap-8 px-4 py-6 lg:max-w-2xl">
+        {/* logo completa no topo (sem recorte circular) */}
         <div className="relative">
           <img
             src="/logo.png"
             alt="Botecofy"
-            className="h-28 w-28 rounded-full object-contain drop-shadow-[0_10px_20px_rgba(11,23,70,0.45)]"
+            className="h-48 w-48 rounded-full bg-white object-cover drop-shadow-[0_10px_20px_rgba(11,23,70,0.45)] sm:h-56 sm:w-56"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = "none";
               const fb = e.currentTarget.nextElementSibling as HTMLElement | null;
@@ -191,18 +191,18 @@ export function AuthScreen() {
           {/* fallback caso /logo.png ainda nao exista */}
           <div
             style={{ display: "none" }}
-            className="h-28 w-28 items-center justify-center rounded-full border-4 border-boteco-yellow bg-boteco-parchment text-center font-display text-2xl text-boteco-green-dark drop-shadow-[0_10px_20px_rgba(11,23,70,0.45)]"
+            className="h-48 w-48 items-center justify-center rounded-full border-4 border-boteco-yellow bg-boteco-parchment text-center font-display text-4xl text-boteco-green-dark drop-shadow-[0_10px_20px_rgba(11,23,70,0.45)] sm:h-56 sm:w-56"
           >
             Boteco<span className="text-boteco-red">fy</span>
           </div>
         </div>
 
         {/* card hero "Puxa uma cadeira" */}
-        <div className="boteco-paper-card w-full px-7 py-6 text-center">
-          <h1 className="font-display text-3xl font-bold text-boteco-green-dark sm:text-4xl">
+        <div className="boteco-paper-card w-full px-9 py-8 text-center">
+          <h1 className="font-display text-5xl font-bold text-boteco-green-dark sm:text-6xl">
             Puxa uma cadeira 🍻
           </h1>
-          <p className="mt-2 text-boteco-brown">
+          <p className="mt-4 text-lg text-boteco-brown sm:text-xl">
             Entre para ouvir a curadoria de brega, pagode, sertanejo e arrocha do Botecofy.
           </p>
         </div>
