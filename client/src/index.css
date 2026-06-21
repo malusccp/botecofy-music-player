@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fonte customizada da marca (logo "Botecofy"), usada nos títulos/wordmark.
+   O arquivo disponível no projeto é MichelleFLF-Bold.ttf. */
+@font-face {
+  font-family: "Michelle FLF";
+  src: url("/fonts/MichelleFLF-Bold.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   /* Aumento GLOBAL de escala: tudo em rem (textos, paddings, alturas) cresce junto,
      deixando a UI maior, mais próxima e legível. */

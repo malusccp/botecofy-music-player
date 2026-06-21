@@ -44,8 +44,9 @@ export default {
         },
       },
       fontFamily: {
-        // títulos: slab serif robusta (letreiro pintado de boteco)
-        display: ['"Zilla Slab"', "Georgia", "serif"],
+        // títulos + wordmark "Boteco": fonte customizada da logo, com slab serif
+        // como reserva enquanto o arquivo de fonte não chega ao projeto.
+        display: ['"Michelle FLF"', '"Zilla Slab"', "Georgia", "serif"],
         // corpo/formulários: sans humanista amigável
         sans: ['"Nunito"', "ui-sans-serif", "system-ui", "sans-serif"],
       },
