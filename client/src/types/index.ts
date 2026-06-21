@@ -32,6 +32,33 @@ export interface Me {
   role: Role;
 }
 
+export interface Artist {
+  id: string;
+  name: string;
+  photoUrl: string;
+  rhythms: Rhythm[];
+}
+
+export interface Album {
+  id: string;
+  title: string;
+  coverUrl: string;
+  rhythm?: Rhythm;
+  trackCount: number;
+  artist: Artist | string;
+}
+
+export interface ArtistProfile {
+  artist: Artist;
+  albums: Album[];
+  topTracks: Track[];
+}
+
+export interface AlbumDetail {
+  album: Album;
+  tracks: Track[];
+}
+
 export interface Paginated<T> {
   items: T[];
   total: number;

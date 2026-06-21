@@ -1,5 +1,5 @@
 import { api } from "./api";
-import type { Me, Paginated, Playlist, Rhythm, Track } from "../types";
+import type { Album, AlbumDetail, Artist, ArtistProfile, Me, Paginated, Playlist, Rhythm, Track } from "../types";
 
 export interface TrackFilters {
   rhythms: Rhythm[];
@@ -79,6 +79,28 @@ export async function uploadTrack(form: FormData): Promise<Track> {
   const { data } = await api.post<Track>("/tracks", form, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+  return data;
+}
+
+export async function fetchTrendingArtists(limit = 10): Promise<Artist[]> {
+  const { data } = await api.get<{ items: Artist[] }>("/artists", { params: { limit } });
+  return data.items;
+}
+
+export async function fetchArtistProfile(id: string): Promise<ArtistProfile> {
+  const { data } = await api.get<ArtistProfile>(`/artists/${id}`);
+  return data;
+}
+
+export async function fetchTrendingAlbums(params?: { artist?: string; limit?: number }): Promise<Album[]> {
+  const { data } = await api.get<{ items: Album[] }>("/albums", {
+    params: { artist: params?.artist, limit: params?.limit ?? 10 },
+  });
+  return data.items;
+}
+
+export async function fetchAlbum(id: string): Promise<AlbumDetail> {
+  const { data } = await api.get<AlbumDetail>(`/albums/${id}`);
   return data;
 }
 
