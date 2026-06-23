@@ -59,9 +59,9 @@ npm run dev
 - Front-end: http://localhost:5173
 - API: http://localhost:4000/api/health
 
-### 🖼️ Logo
+### 🖼️ Logo e fonte da marca
 
-Salve a imagem oficial da logo em **`client/public/logo.png`** (veja `client/public/LEIA-ME-LOGO.txt`). Enquanto o arquivo não existir, o cabeçalho mostra o wordmark "Botecofy 🍺" como fallback.
+A logo oficial fica em **`client/public/logo.png`** e é exibida com recorte circular (`object-cover` sobre fundo branco) na tela de login e na navbar; se o arquivo faltar, aparece o wordmark "Botecofy 🍺" como fallback. A **fonte da marca "Michelle FLF"** (`client/public/fonts/`) é aplicada **apenas na tela de login** (família `brand` no Tailwind); o restante do app usa a serifada `Zilla Slab` (família `display`).
 
 ### 🔐 Autenticação (Clerk — login real obrigatório)
 
@@ -95,6 +95,8 @@ Cobre regras de negócio (RN01, RN02, RN06, RN07) em testes unitários com repos
 | POST | `/api/tracks` | HU01 cadastrar (upload) | curador/admin |
 | POST | `/api/tracks/:id/play` | HU03 registrar play | autenticado |
 | POST | `/api/tracks/:id/like` | HU05 curtir (tempo real) | autenticado |
+| GET | `/api/artists`, `/api/artists/:id` | catálogo de artistas (destaques + perfil com álbuns e top faixas) | público |
+| GET | `/api/albums`, `/api/albums/:id` | recomendações de álbuns e faixas do álbum (tocar o álbum inteiro) | público |
 | GET/POST | `/api/playlists` | HU04 listar/criar | autenticado / curador |
 | POST | `/api/playlists/:id/follow` | HU06 seguir | autenticado |
 | GET | `/api/me`, `/api/me/history` | HU08 perfil/histórico | autenticado |
@@ -106,14 +108,18 @@ WebSocket (Socket.io): eventos `track:liked` e `track:played` para atualização
 
 ## 🎧 Sobre o áudio (iTunes Search API)
 
-O `seed` consome a **iTunes Search API** e popula o acervo com **dados reais da Apple** por ritmo (pagode, sertanejo, arrocha, brega): `trackName`→título, `artistName`→artista, `previewUrl` (preview de ~30s)→`audioUrl`, e a capa em alta resolução (`artworkUrl100` → `600x600bb`)→`coverUrl`. Não há mais `sample.mp3`. O player toca os previews diretamente; uploads próprios (tela "Enviar faixa") são servidos com suporte a *seek* (HTTP Range).
+O `seed` consome a **iTunes Search API** e popula o acervo com **dados reais da Apple** por ritmo (pagode, sertanejo, arrocha, brega): `trackName`→título, `artistName`→artista, `previewUrl` (preview de ~30s)→`audioUrl`, e a capa em alta resolução (`artworkUrl100` → `600x600bb`)→`coverUrl`. Além das faixas, o seed cria as entidades **`Artist`** e **`Album`** (a partir de `artistName` e `collectionName`), permitindo navegar por artista e **tocar o álbum inteiro** com um clique. Não há mais `sample.mp3`. O player toca os previews diretamente; uploads próprios (tela "Enviar faixa") são servidos com suporte a *seek* (HTTP Range).
+
+### 🖼️ Fotos de artista (Deezer)
+
+A iTunes Search API não retorna foto de artista (só capa de álbum). Para exibir a **foto real** nos cards de "Artistas do Momento" e na página do artista, o back-end consulta a **API pública da Deezer** (`/search/artist`, sem chave) **sob demanda**: na primeira vez que um artista aparece, a foto é buscada e **persistida** (campo `photoChecked` em `Artist`), evitando novas chamadas. Quando a Deezer não tem a foto, mantém-se a capa do álbum como fallback. *(A Last.fm foi avaliada, mas descontinuou as imagens de artista em 2019 — devolve apenas um placeholder.)*
 
 ---
 
 ## 🗺️ Roteiro de demonstração
 
 1. **Cadastre-se** pela tela de login (Clerk). Coloque seu e-mail em `ADMIN_EMAILS` no `server/.env` para entrar como Admin/Curador.
-2. **Descobrir** → filtre por ritmo / ordene / busque (HU02) → **Tocar** um preview real do iTunes (HU03).
+2. **Descobrir** → explore as seções ("Como você está se sentindo hoje?", "Recentes", "Artistas do Momento", "Recomendações de Álbuns", "Playlists em Alta"), filtre por ritmo / ordene / busque (HU02) → **Tocar** um preview real do iTunes (HU03). Clique num **álbum** para abrir a página dele e **tocar todas as faixas**; clique num **artista** para ver o perfil (foto via Deezer, álbuns e top faixas).
 3. Curta uma faixa e veja o contador subir ao vivo em outra aba (HU05, tempo real).
 4. Como **Curador** → **Enviar faixa** cadastra no acervo (HU01); crie uma **Playlist** temática (HU04).
 5. **Seguir** a playlist; veja em **Perfil** o histórico e as seguidas (HU06/HU08).
