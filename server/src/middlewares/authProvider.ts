@@ -29,6 +29,12 @@ export interface AuthProvider {
  *   3. listener (padrão)
  */
 export class ClerkAuthProvider implements AuthProvider {
+  // Cache curto da identidade por usuário: evita chamar o Clerk pela rede em
+  // toda requisição (o que adicionava latência e atrasava o carregamento do
+  // papel/menu no front). Mudanças de papel refletem em até `ttlMs`.
+  private readonly cache = new Map<string, { identity: ResolvedIdentity; expires: number }>();
+  private readonly ttlMs = 60_000;
+
   constructor(
     private readonly adminEmails: string[],
     private readonly curatorEmails: string[]
@@ -37,6 +43,9 @@ export class ClerkAuthProvider implements AuthProvider {
   async resolve(req: Request): Promise<ResolvedIdentity | null> {
     const { userId } = getAuth(req);
     if (!userId) return null;
+
+    const cached = this.cache.get(userId);
+    if (cached && cached.expires > Date.now()) return cached.identity;
 
     const user = await clerkClient.users.getUser(userId);
     const email = (
@@ -50,12 +59,14 @@ export class ClerkAuthProvider implements AuthProvider {
       email ||
       "Ouvinte";
 
-    return {
+    const identity: ResolvedIdentity = {
       clerkId: userId,
       email,
       displayName,
       role: this.resolveRole(email, user.publicMetadata?.role),
     };
+    this.cache.set(userId, { identity, expires: Date.now() + this.ttlMs });
+    return identity;
   }
 
   private resolveRole(email: string, metaRole: unknown): Role {
