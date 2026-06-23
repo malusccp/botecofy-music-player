@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { UserButton } from "@clerk/clerk-react";
 import { HomeIcon, SearchIcon } from "./icons";
 
@@ -14,7 +14,7 @@ function Brand() {
           (e.currentTarget as HTMLImageElement).style.display = "none";
         }}
       />
-      <span className="hidden font-display text-3xl text-boteco-ink sm:inline">
+      <span className="hidden font-brand text-3xl text-boteco-ink sm:inline">
         Boteco<span className="text-boteco-red-light">fy</span>
       </span>
     </Link>
@@ -23,11 +23,28 @@ function Brand() {
 
 export function TopBar() {
   const navigate = useNavigate();
-  const [q, setQ] = useState("");
+  const [params] = useSearchParams();
+  const urlQ = params.get("q") ?? "";
+  // Texto digitado (resposta imediata). A URL `?q=` é a fonte da verdade da busca.
+  const [q, setQ] = useState(urlQ);
 
-  const onSearch = (value: string) => {
-    setQ(value);
-    navigate(value ? `/?q=${encodeURIComponent(value)}` : "/", { replace: true });
+  // Mantém o campo em sincronia quando a URL muda por fora (logo, limpar, voltar).
+  useEffect(() => {
+    setQ(urlQ);
+  }, [urlQ]);
+
+  // Busca enquanto digita, com debounce: só atualiza a URL/resultados após uma pausa.
+  useEffect(() => {
+    if (q === urlQ) return;
+    const id = setTimeout(() => {
+      navigate(q.trim() ? `/?q=${encodeURIComponent(q.trim())}` : "/", { replace: true });
+    }, 250);
+    return () => clearTimeout(id);
+  }, [q, urlQ, navigate]);
+
+  const clear = () => {
+    setQ("");
+    navigate("/", { replace: true });
   };
 
   return (
@@ -52,10 +69,22 @@ export function TopBar() {
           <SearchIcon size={26} className="text-boteco-yellow" />
           <input
             value={q}
-            onChange={(e) => onSearch(e.target.value)}
+            onChange={(e) => setQ(e.target.value)}
             placeholder="O que você quer ouvir?"
             className="w-full bg-transparent text-lg text-boteco-ink placeholder:text-boteco-muted outline-none"
           />
+          {q && (
+            <button
+              type="button"
+              onClick={clear}
+              aria-label="Limpar busca"
+              className="shrink-0 text-boteco-muted transition hover:text-boteco-ink"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+                <path d="M6 6l12 12M18 6 6 18" />
+              </svg>
+            </button>
+          )}
         </form>
       </div>
 
