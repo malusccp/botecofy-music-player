@@ -37,13 +37,59 @@ export class TrackRepository implements ITrackRepository {
   }
 
   async search(query: TrackQuery): Promise<{ items: TrackDoc[]; total: number }> {
-    const filter: Record<string, unknown> = { status: query.status ?? "active" };
+    const status = query.status ?? "active";
+    const skip = (query.page - 1) * query.limit;
+    const text = query.text?.trim();
+
+    // Busca por texto: relevância por regex (tolerante a parcial/ordem das palavras),
+    // exigindo que TODAS as palavras apareçam no título ou no artista, e ordenando
+    // por melhor casamento (título exato > começa com > contém > artista).
+    if (text) {
+      const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const phrase = esc(text);
+      const words = text.split(/\s+/).filter(Boolean).map(esc);
+
+      const match: Record<string, unknown> = { status };
+      if (query.rhythms && query.rhythms.length > 0) match.rhythm = { $in: query.rhythms };
+      match.$and = words.map((w) => ({
+        $or: [
+          { title: { $regex: w, $options: "i" } },
+          { artist: { $regex: w, $options: "i" } },
+        ],
+      }));
+
+      const scoreStage = {
+        $addFields: {
+          _score: {
+            $add: [
+              { $cond: [{ $regexMatch: { input: "$title", regex: `^${phrase}$`, options: "i" } }, 1000, 0] },
+              { $cond: [{ $regexMatch: { input: "$title", regex: `^${phrase}`, options: "i" } }, 300, 0] },
+              { $cond: [{ $regexMatch: { input: "$title", regex: phrase, options: "i" } }, 150, 0] },
+              { $cond: [{ $regexMatch: { input: "$artist", regex: phrase, options: "i" } }, 40, 0] },
+            ],
+          },
+        },
+      };
+
+      const [items, countArr] = await Promise.all([
+        TrackModel.aggregate([
+          { $match: match },
+          scoreStage,
+          { $sort: { _score: -1, playsCount: -1 } },
+          { $skip: skip },
+          { $limit: query.limit },
+        ]).exec(),
+        TrackModel.aggregate([{ $match: match }, { $count: "n" }]).exec(),
+      ]);
+
+      return { items: items as unknown as TrackDoc[], total: (countArr[0] as { n?: number })?.n ?? 0 };
+    }
+
+    // Sem texto: listagem normal (filtro por ritmo + ordenação configurável).
+    const filter: Record<string, unknown> = { status };
     if (query.rhythms && query.rhythms.length > 0) filter.rhythm = { $in: query.rhythms };
-    if (query.text && query.text.trim()) filter.$text = { $search: query.text.trim() };
 
     const sort = resolveSort(query.sort);
-    const skip = (query.page - 1) * query.limit;
-
     const [items, total] = await Promise.all([
       TrackModel.find(filter).sort(sort).skip(skip).limit(query.limit).exec(),
       TrackModel.countDocuments(filter).exec(),
